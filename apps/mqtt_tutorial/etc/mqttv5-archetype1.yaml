@@ -1,0 +1,5 @@
+defaultCluster: edge
+clusters:
+  - name: edge
+    connection:
+      serverURIs: [tcp://localhost:1883-1892]

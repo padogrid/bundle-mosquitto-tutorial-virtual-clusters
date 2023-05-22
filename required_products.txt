@@ -4,11 +4,11 @@
 # versions that make up the bundle name.
 #
 # Specify ony the version number parts that are required. For example, if the bundle
-# can be run on all versions of Hazelcast 4.x.x, then specify 4 only. If it applies to
-# 4.1.x, then 4.1. If the bundle applies to multiple specific versions, then list them
-# comma-separated. For example, the following applies to Hazelcast 3.12, 4.1.1, and 4.2.
+# can be run on all versions of Mosquitto 2.x.x, then specify 2 only. If it applies to
+# 2.0.x, then 2.0. If the bundle applies to multiple specific versions, then list them
+# comma-separated. For example, the following applies to Mosquitto 2.0.15, 2.0.14, and 1.6
 #
-# mosquitto=2.0.15,1.6.15
+# mosquitto=2.0.15,2.0.14,1.6
 #
 # To deemphasize products, i.e., product not required, requires multiple products, etc.,
 # then set none=1.

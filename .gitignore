@@ -32,7 +32,7 @@ workspace.code-workspace
 .ipynb_checkpoints
 
 # PadoGrid workspace directories
-apps
+#apps
 clusters
 docker
 groups

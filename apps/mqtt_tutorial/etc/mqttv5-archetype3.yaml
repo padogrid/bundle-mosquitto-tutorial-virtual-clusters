@@ -1,0 +1,10 @@
+defaultCluster: archetype3
+clusters:
+  - name: archetype3
+    defaultTopicBase: test/
+    endpoints:
+      - name: special-node
+        endpoint: tcp://localhost:1885
+        topicBase: test/special
+    connection:
+      serverURIs: [tcp://localhost:1883-1892]

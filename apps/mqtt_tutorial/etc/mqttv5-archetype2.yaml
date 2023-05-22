@@ -1,0 +1,9 @@
+defaultCluster: edge
+clusters:
+  - name: edge
+    fos: 3
+    publisherType: ALL
+    subscriberCount: 2
+    connection:
+      serverURIs: [tcp://localhost:1883-1892]
+
