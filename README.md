@@ -42,6 +42,9 @@ apps
 1. [Configuring Bundle Environment](#configuring-bundle-environment)
 2. [Startup Sequence](#startup-sequence)
    1. [Archetype 1](#archetype-1)
+      1. [By Cluster](#by-cluster)
+      1. [By Configuration](#by-configuration)
+      1. [By Endpoints](#by-endpoints)
    1. [Archetype 1 Summary](#archetype-1-summary)
    1. [Archetype 2](#archetype-2)
    1. [Archetype 2 Summary](#archetype-2-summary)
@@ -53,12 +56,14 @@ apps
    1. [Archetype 5 Summary](#archetype-5-summary)
    1. [Archetype 6](#archetype-6)
    1. [Archetype 6 Summary](#archetype-6-summary)
+   1. [Archetype 7](#archetype-7)
+   1. [Archetype 7 Summary](#archetype-7-summary)
 3. [Teardown](#teardown)
 3. [References](#references)
 
 ## Configuring Bundle Environment
 
-This tutorial requires two (2) Mosquitto clusters. 
+This tutorial requires three (3) Mosquitto clusters. Let's create the first two (2) clusters now. We will create the third cluster later.
 
 ```bash
 # Create edge cluster with 10 members
@@ -84,7 +89,11 @@ switch_cluster edge
 
 ### Archetype 1
 
-Archetype 1 refers to a baseline virtual cluster providing the effect of a *fan-out* architecture: **one publisher and many subscribers**. In Archetype 1, the receiver subscribes to all the brokers in the virtual cluster. The sender delivers each message using a single publisher that is connected to one of the brokers and the receiver receives the message from that broker.
+Archetype 1 refers to a baseline virtual cluster providing the effect of a *fan-out* architecture: **one publisher and many subscribers**. In Archetype 1, the receiver subscribes to all the brokers in the virtual cluster. The sender delivers each message using a single publisher that is connected to one of the brokers and the receiver receives the message from that broker. The publisher is selected by one of the following methods. The default method is `publisherType: STICKY`. The publisher "sticks" to one endpoint for all operations.
+
+- By `publisherType`. Valid values are `STICKY`, `RANDOM`, `ROUND_ROBIN`, and `ALL`.
+- By endpoint name. Each endpoint is identifiable by a unqiue name.
+- By topic base. Each endpoint can be tied to a topic base.
 
 ```yaml
 clusters:
@@ -95,7 +104,7 @@ clusters:
 
 ![Archetype 1](images/mqtt-archetype1.drawio.png)
 
-PadoGrid is equipped with the `vc_publish` and `vc_subscribe` commands for publishing and subscribing messages to virtual clusters. By default, they automatically create a virtual cluster representing the current physical cluster in the workspace. For our example, they construct the above configuration to form a virtual cluster. This is quite convenient since we can simply run these commands without specifying all the endpoints.
+PadoGrid is equipped with the `vc_publish` and `vc_subscribe` commands for publishing and subscribing messages to virtual clusters. By default, they automatically create a virtual cluster representing the current physical cluster in the workspace. For our example, these commands automatically construct the above configuration to form a virtual cluster. This is quite convenient since we can simply run these commands without specifying all the endpoints.
 
 #### By Cluster
 
@@ -825,7 +834,6 @@ clusters:
 
 ![Archetype 6](images/mqtt-archetype6.drawio.png)
 
-
 ![Terminal](images/terminal.png) Terminal 3
 
 To provide broker HA, we need to configure Mosquitto bridge brokers. Unfortunately, Mosquitto is not capable of bridging across multiple brokers. We can only designate one broker to configure bridges. If we were to bridge broker A to B and B to A, then they will end up in a loop where messages will be sent to each other indefinitely. This means, to enable broker HA, we must limit the number of brokers to two (2) per cluster. Therefore, Archetype 6 always bridges only two (2) brokers.
@@ -976,6 +984,231 @@ tcp://localhost:31001 - test/topic1: hello to bridged 5
 ### Archetype 6 Summary
 
 Archetype 6 provides HA over bridged brokers using the sticky cluster configuration. Mosquittio can only bridge two brokers at a time. Bridging multiple brokers leads to cyclic (looping) messages. This means we are limited to two (2) brokers per cluster for enabling broker-bridged HA.
+
+---
+
+### Archetype 7
+
+Archetype 7 increases the Archetype 6 HA by including additional clusters. Instead of limiting to two (2) brokers in Archetype 6, Archetype 7 creates multiple clusters to increase the number of brokers.  
+
+```yaml
+clusters:
+  - name: publisher
+    fos: 3
+    publisherType: ROUND_ROBIN
+    subscriberCount: 0
+    connection:
+      serverURIs: [tcp://localhost:31001-31010]
+  - name: subscriber
+    connection:
+      serverURIs:
+        - tcp://localhost:31001
+        - tcp://localhost:31003
+        - tcp://localhost:31005
+        - tcp://localhost:31007
+        - tcp://localhost:31009
+```
+
+![Archetype 7](images/mqtt-archetype7.drawio.png)
+
+![Terminal](images/terminal.png) Terminal 3
+
+Add eight (8) more members to the `bridged` physical cluster.
+
+```bash
+add_member -count 8
+```
+
+Edit odd numbered members' Mosquitto configuration files.
+
+```bash
+vi run/bridged-*-0[3579]/mosquitto.conf
+```
+
+Append the following in `mosquitto.conf`.
+
+Member 03:
+
+```conf
+# bridged-03
+connection bridged-03
+address localhost:31004
+remote_clientid bridged-03
+cleansession false
+notifications false
+start_type automatic
+topic # both 0
+bridge_protocol_version mqttv50
+try_private true
+```
+
+Member 05:
+
+```conf
+# bridged-05
+connection bridged-05
+address localhost:31006
+remote_clientid bridged-05
+cleansession false
+notifications false
+start_type automatic
+topic # both 0
+bridge_protocol_version mqttv50
+try_private true
+```
+
+Member 07:
+
+```conf
+# bridged-07
+connection bridged-07
+address localhost:31008
+remote_clientid bridged-07
+cleansession false
+notifications false
+start_type automatic
+topic # both 0
+bridge_protocol_version mqttv50
+try_private true
+```
+
+Member 09:
+
+```conf
+# bridged-09
+connection bridged-09
+address localhost:31010
+remote_clientid bridged-09
+cleansession false
+notifications false
+start_type automatic
+topic # both 0
+bridge_protocol_version mqttv50
+try_private true
+```
+
+Start the new members.
+
+```bash
+start_cluster
+```
+
+![Terminal](images/terminal.png) Terminal 1
+
+From Terminal 1, monitor all member log files.
+
+```bash
+switch_cluster bridged
+show_log -all
+```
+
+You should see each member connecting to their respective bridged broker.
+
+
+```console
+...
+==> /Users/dpark/Padogrid/workspaces/rwe-bundles/bundle-mosquitto-tutorial-virtual-clusters/clusters/bridged/log/bridged-padomac.local-09.log <==
+2023-05-22T17:50:05: Config loaded from /Users/dpark/Padogrid/workspaces/rwe-bundles/bundle-mosquitto-tutorial-virtual-clusters/clusters/bridged/etc/mosquitto.conf.
+2023-05-22T17:50:05: Opening ipv6 listen socket on port 31009.
+2023-05-22T17:50:05: Opening ipv4 listen socket on port 31009.
+2023-05-22T17:50:05: Opening ipv6 listen socket on port 37209.
+2023-05-22T17:50:05: Opening ipv4 listen socket on port 37209.
+2023-05-22T17:50:05: Opening websockets listen socket on port 1883.
+2023-05-22T17:50:05: Connecting bridge bridged-09 (localhost:31010)
+2023-05-22T17:50:05: mosquitto version 2.0.15 running
+2023-05-22T17:50:05: Client local.bridged-09 closed its connection.
+2023-05-22T17:50:12: Connecting bridge bridged-09 (localhost:31010)
+
+==> /Users/dpark/Padogrid/workspaces/rwe-bundles/bundle-mosquitto-tutorial-virtual-clusters/clusters/bridged/log/bridged-padomac.local-10.log <==
+2023-05-22T17:50:05: mosquitto version 2.0.15 starting
+2023-05-22T17:50:05: Config loaded from /Users/dpark/Padogrid/workspaces/rwe-bundles/bundle-mosquitto-tutorial-virtual-clusters/clusters/bridged/etc/mosquitto.conf.
+2023-05-22T17:50:05: Opening ipv6 listen socket on port 31010.
+2023-05-22T17:50:05: Opening ipv4 listen socket on port 31010.
+2023-05-22T17:50:05: Opening ipv6 listen socket on port 37210.
+2023-05-22T17:50:05: Opening ipv4 listen socket on port 37210.
+2023-05-22T17:50:05: Opening websockets listen socket on port 1883.
+2023-05-22T17:50:05: mosquitto version 2.0.15 running
+2023-05-22T17:50:12: New connection from ::1:55717 on port 31010.
+2023-05-22T17:50:12: New client connected from ::1:55717 as bridged-09 (p5, c0, k60).
+```
+
+![Terminal](images/terminal.png) Terminal 2
+
+From Terminal 2, subscribe to the `subscriber` virtual cluster using the provided `mqttv5-archetype7.yaml` file.
+
+```bash
+# Ctrl-C to exit the running program and execute the following
+cd_app mqtt_tutorial
+vc_subscribe -cluster subscriber -config etc/mqttv5-archetype7.yaml -t test/#
+```
+
+![Terminal](images/terminal.png) Terminal 3
+
+From Terminal 3, send messages to each member.
+
+```bash
+for i in $(seq 1 9); do
+   mosquitto_pub -p 3100$i -t test/topic1 -m "hello to subscriber $i"
+done
+mosquitto_pub -p 31010 -t test/topic1 -m "hello to subscriber $i"
+```
+
+![Terminal](images/terminal.png) Terminal 2
+
+Terminal 2 should output messages received from the odd numbered ports. The messages published on 31003 and 31004 are received by 31003 as shown below.
+
+```console
+LOG_FILE: /Users/dpark/.padogrid/log/vc_subscribe.log
+PadoGrid Cluster: subscriber
+cluster: subscriber (virtual)
+fos: 0
+qos: 0
+config: etc/mqttv5-archetype7.yaml
+topicFilter: test/#
+Waiting for messages...
+tcp://localhost:31001 - test/topic1: hello to subscriber 1
+tcp://localhost:31001 - test/topic1: hello to subscriber 2
+tcp://localhost:31003 - test/topic1: hello to subscriber 3
+tcp://localhost:31003 - test/topic1: hello to subscriber 4
+tcp://localhost:31005 - test/topic1: hello to subscriber 5
+tcp://localhost:31005 - test/topic1: hello to subscriber 6
+tcp://localhost:31007 - test/topic1: hello to subscriber 7
+tcp://localhost:31007 - test/topic1: hello to subscriber 8
+tcp://localhost:31009 - test/topic1: hello to subscriber 9
+tcp://localhost:31009 - test/topic1: hello to subscriber 9
+```
+
+![Terminal](images/terminal.png) Terminal 3
+
+From Terminal 3, use `vc_publish` to send messages to the `publisher` virtual cluster, which .
+
+```bash
+for i in $(seq 1 10); do
+   vc_publish -name publisher-$i -cluster publisher -config etc/mqttv5-archetype7.yaml -t test/topic1 -m "publisher sends hello to subscriber $i"
+done
+```
+
+![Terminal](images/terminal.png) Terminal 2
+
+Terminal 2 should output received from `vc_publish` as follows.
+
+```console
+...
+tcp://localhost:31001 - test/topic1: publisher sends hello to subscriber 1
+tcp://localhost:31001 - test/topic1: publisher sends hello to subscriber 2
+tcp://localhost:31003 - test/topic1: publisher sends hello to subscriber 3
+tcp://localhost:31003 - test/topic1: publisher sends hello to subscriber 4
+tcp://localhost:31005 - test/topic1: publisher sends hello to subscriber 5
+tcp://localhost:31005 - test/topic1: publisher sends hello to subscriber 6
+tcp://localhost:31007 - test/topic1: publisher sends hello to subscriber 7
+tcp://localhost:31007 - test/topic1: publisher sends hello to subscriber 8
+tcp://localhost:31009 - test/topic1: publisher sends hello to subscriber 9
+tcp://localhost:31009 - test/topic1: publisher sends hello to subscriber 10
+```
+
+### Archetype 7 Summary
+
+Archetype 7 allows any number of bridged brokers by pairing additional brokers and creating publisher-only and subscriber-only virtual clusters. The publisher-only virtual cluster can scale out to `n-2` brokers and the subscriber-only cluster can scale out to `n` brokers.
 
 ---
 
