@@ -274,7 +274,7 @@ clusters:
 
 ### Archetype 2
 
-Archetype 2 is inverse of Archetype 1. Instead of targeting individual brokers, it targets all brokers in the virutal cluster providing the effect of a *fan-in* architecture: **many publishers and one subscriber**. Since each receiver has one active subscriber, they receive non-duplicate messages from one of the brokers. As far as the application is concerned, there is no difference between Archetype 1 and Archetype 2. They both send and receive messages via their repective virtual cluster. Archetype 2 is useful in an environment where the reachability of IoT devices is not guaranteed due poor wireless networks, device mobility and failures, firewalls, etc. Unlike Archetype 1, which expects a stable network for the publisher to reach all the IoT devices, Archetype 2 broadcasts to all the brokers allowing each IoT device to receive data regardless of the network issues.
+Archetype 2 is inverse of Archetype 1. Instead of targeting individual brokers, it targets all brokers in the virutal cluster providing the effect of a *fan-in* architecture: **many publishers and one subscriber**. Since each receiver has one active subscriber, they receive non-duplicate messages from one of the brokers. As far as the application is concerned, there is no difference between Archetype 1 and Archetype 2. They both send and receive messages via their repective virtual cluster. Archetype 2 is useful in an environment where the reachability of IoT devices is not guaranteed due to poor wireless networks, device mobility and failures, firewalls, etc. Unlike Archetype 1, which expects a stable network for the publisher to reach all the IoT devices, Archetype 2 broadcasts to all the brokers allowing each IoT device to receive data regardless of the network issues.
 
 ```yaml
 defaultCluster: edge
@@ -427,9 +427,9 @@ Try stopping a few more members. `vc_subscribe` will continue to receive message
 
 Archetype 2 broadcasts messages to all brokers. A receiver actively listen on only one of the brokers until the broker fails. Upon failure, it automatically switches to another broker to receive messages uninterrupted. 
 
-From the architecture perspective, Archetype 2 is very costly as it puts more traffic on the network by broadcasting messages to all the brokers. However, there a few use cases. For example, on a production floor, it is typical to have an assembly line with a number of stations where product parts are put together. Each station is equipped with several IoT devices that monitor the product being assembled in real time. As an example, the IoT devices may collect data for monitoring defect and missing parts, misassembly, temperature/humidity control, air pressure, fluid viscosity levels, etc. Based on the analytics performed on the real-time data, each station decides how to proceed  before reaching the next station in the assembly line. The analytics data is also fed to other stations for their data processing activities. For this use case, several Archetype 1 virtual clusters are created to communicate between stations. From these virtual clusters, a select set of endpoints are also independently clustered to form an Archetype 2 virtual cluster, called the central cluster. These endpoints belong to both the central and station clusters. The central cluster is used to commrunicate with the central system that monitors individual stations. By having its own cluster that is independent of the station clusters and yet still able to communicate with individual stations provides a complete control over all the stations without having all the station brokers clustered. For example, it can shutdown all the stations in case of emergency by simply broadcasting the shutdown message to the central cluster.
+From the architecture perspective, Archetype 2 is very costly as it puts more traffic on the network by broadcasting messages to all the brokers. However, there are many use cases. For example, on a production floor, it is typical to have an assembly line with a number of stations where product parts are put together. Each station is equipped with several IoT devices that monitor the product being assembled in real time. As an example, the IoT devices may collect data for monitoring defects, missing parts, misassembly, temperature/humidity control, air pressure, fluid viscosity levels, etc. Based on the analytics performed on the real-time data, each station decides how to proceed  before reaching the next station in the assembly line. The analytics data is also fed to other stations for their data processing activities. For this use case, several Archetype 1 virtual clusters are created to communicate between stations. From these virtual clusters, a select set of endpoints are also independently clustered to form an Archetype 2 virtual cluster, called the central cluster. These endpoints belong to both the central and station clusters. The central cluster is used to commrunicate with the central system that monitors individual stations. By having its own cluster that is independent of the station clusters and yet still able to communicate with individual stations provides a complete control over all the stations without having to cluster every broker. For example, it can shutdown all the stations in case of emergency by simply broadcasting the shutdown message to the central cluster.
 
-Another use case for Archetype 2 is for creating repeaters. In a remote environment where edge devices are unable to connect to the Internet and they are spread across long distances, Archetype 2 allows them to create a virtual cluster amongst themselves with their own networks. Broadcast messages can be rebroacasted by each receiver until they reachs the last receiver in the cluster.
+Another use case for Archetype 2 is for creating repeaters. In a remote environment where edge devices are spread across long distances with no access to the Internet, using Archetype 2, we can have them to rebroadcast messages until every edge device receives the messages.
 
 ---
 
@@ -646,7 +646,7 @@ ERROR: Error occured while publishing data. Endpoint not found [endpointName=arc
 
 ### Archetype 3 Summary
 
-Archetype 3 is Archetype 1 with targeted endpoints. We can target endpoints using the default names or assigned names. The ability to target endpoints provides a basic mechanism for turning the virtual cluster into a distributed system. For example, in a distributed system, we control which edge devices to take on heavier workloads.
+Archetype 3 is Archetype 1 with targeted endpoints. We can target endpoints using the default names or assigned names. The ability to target endpoints provides a basic mechanism for turning the virtual cluster into a distributed system.
 
 ---
 
@@ -836,7 +836,7 @@ clusters:
 
 ![Terminal](images/terminal.png) Terminal 3
 
-To provide broker HA, we need to configure Mosquitto bridge brokers. Unfortunately, Mosquitto is not capable of bridging across multiple brokers. We can only designate one broker to configure bridges. If we were to bridge broker A to B and B to A, then they will end up in a loop where messages will be sent to each other indefinitely. This means, to enable broker HA, we must limit the number of brokers to two (2) per cluster. Therefore, Archetype 6 always bridges only two (2) brokers.
+To provide broker HA, we need to configure Mosquitto bridge brokers. Unfortunately, Mosquitto is not capable of bridging more than two (2) active brokers. Because of this limitation, Archetype 6 can only support two (2) brokers per cluster.
 
 From Terminal 3, let's create another physical cluster, called "bridged", with the starting port number 31001.
 
