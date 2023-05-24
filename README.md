@@ -841,24 +841,31 @@ To provide broker HA, we need to configure Mosquitto bridge brokers. Unfortunate
 From Terminal 3, let's create another physical cluster, called "bridged", with the starting port number 31001.
 
 ```bash
-# Create "bridged" cluster
-make_cluster -product mosquitto -cluster bridged -port 31001
+# Create "bridged" cluster. By default, 2 bridged members are created if
+# -bridge is specified.
+create_cluster -product mosquitto -cluster bridged -port 31001 -bridge
 
-# By default, three (3) members are created. Remove one (1).
+# Change cluster context to bridged
 switch_cluster bridged
-remove_member
 ```
 
-Edit the first member's Mosquitto configuration file. Each member has their own working directory named with the cluster name as the prefix followed by the hostname and the member number.
+View the first member's Mosquitto configuration file. Each member has their own working directory named with the cluster name as the prefix followed by the hostname and the member number.
 
 ```bash
-vi run/bridged-*-01/mosquitto.conf
+cat run/bridged-*-01/mosquitto.conf
 ```
 
-Append the following in `mosquitto.conf`.
+Output:
 
-```conf
-# bridged-01
+```console
+#
+# This file contains parameters specific to member 01.
+#
+listener 31001
+listener 37201
+log_dest file ../../log/bridged-padomac.local-01.log
+
+# bridge: bridged-01
 connection bridged-01
 address localhost:31002
 remote_clientid bridged-01
@@ -870,7 +877,24 @@ bridge_protocol_version mqttv50
 try_private true
 ```
 
-Start the bridged cluster
+```bash
+cat run/bridged-*-02/mosquitto.conf
+```
+
+Output:
+
+```console
+#
+# This file contains parameters specific to member 02.
+#
+listener 31002
+listener 37202
+log_dest file ../../log/bridged-padomac.local-02.log
+```
+
+The `create_cluster -bridge` command automatically bridges odd numbered members with even numbered members.
+
+Start the `bridged` cluster
 
 ```bash
 start_cluster
@@ -1019,72 +1043,10 @@ Add eight (8) more members to the `bridged` physical cluster.
 add_member -count 8
 ```
 
-Edit odd numbered members' Mosquitto configuration files.
+Since the `bridged` cluster was created with `create_cluster -bridge`, the `add_member` command adds new members with bridge configuration. You can view their configuration file using the `less` command as follows.
 
 ```bash
-vi run/bridged-*-0[3579]/mosquitto.conf
-```
-
-Append the following in `mosquitto.conf`.
-
-Member 03:
-
-```conf
-# bridged-03
-connection bridged-03
-address localhost:31004
-remote_clientid bridged-03
-cleansession false
-notifications false
-start_type automatic
-topic # both 0
-bridge_protocol_version mqttv50
-try_private true
-```
-
-Member 05:
-
-```conf
-# bridged-05
-connection bridged-05
-address localhost:31006
-remote_clientid bridged-05
-cleansession false
-notifications false
-start_type automatic
-topic # both 0
-bridge_protocol_version mqttv50
-try_private true
-```
-
-Member 07:
-
-```conf
-# bridged-07
-connection bridged-07
-address localhost:31008
-remote_clientid bridged-07
-cleansession false
-notifications false
-start_type automatic
-topic # both 0
-bridge_protocol_version mqttv50
-try_private true
-```
-
-Member 09:
-
-```conf
-# bridged-09
-connection bridged-09
-address localhost:31010
-remote_clientid bridged-09
-cleansession false
-notifications false
-start_type automatic
-topic # both 0
-bridge_protocol_version mqttv50
-try_private true
+less run/bridged-*/mosquitto.conf
 ```
 
 Start the new members.
