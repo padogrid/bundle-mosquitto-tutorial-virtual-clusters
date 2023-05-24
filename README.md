@@ -274,7 +274,7 @@ clusters:
 
 ### Archetype 2
 
-Archetype 2 is inverse of Archetype 1. Instead of targeting individual brokers, it targets all brokers in the virutal cluster providing the effect of a *fan-in* architecture: **many publishers and one subscriber**. Since each receiver has one active subscriber, they receive non-duplicate messages from one of the brokers. As far as the application is concerned, there is no difference between Archetype 1 and Archetype 2. They both send and receive messages via their repective virtual cluster. Archetype 2 is useful in an environment where the reachability of IoT devices is not guaranteed due to poor wireless networks, device mobility and failures, firewalls, etc. Unlike Archetype 1, which expects a stable network for the publisher to reach all the IoT devices, Archetype 2 broadcasts to all the brokers allowing each IoT device to receive data regardless of the network issues.
+Archetype 2 is inverse of Archetype 1. Instead of targeting individual brokers, it targets all brokers in the virutal cluster providing the effect of a *fan-in* architecture: **many publishers and one subscriber**. Since each receiver has one active subscriber, they receive non-duplicate messages from one of the brokers. As far as the application is concerned, there is no difference between Archetype 1 and Archetype 2. They both send and receive messages via their respective virtual cluster. Archetype 2 is useful in an environment where the reachability of IoT devices is not guaranteed due to poor wireless networks, device mobility and failures, firewalls, etc. Unlike Archetype 1, which expects a stable network for the publisher to reach all the IoT devices, Archetype 2 broadcasts to all the brokers allowing each IoT device to receive data regardless of the network issues.
 
 ```yaml
 defaultCluster: edge
@@ -425,7 +425,7 @@ Try stopping a few more members. `vc_subscribe` will continue to receive message
 
 ### Archetype 2 Summary
 
-Archetype 2 broadcasts messages to all brokers. A receiver actively listen on only one of the brokers until the broker fails. Upon failure, it automatically switches to another broker to receive messages uninterrupted. 
+Archetype 2 broadcasts messages to all brokers. A receiver actively listens on only one of the brokers until the broker fails. Upon failure, it automatically switches to another broker to receive messages uninterrupted. 
 
 From the architecture perspective, Archetype 2 is very costly as it puts more traffic on the network by broadcasting messages to all the brokers. However, there are many use cases. For example, on a production floor, it is typical to have an assembly line with a number of stations where product parts are put together. Each station is equipped with several IoT devices that monitor the product being assembled in real time. As an example, the IoT devices may collect data for monitoring defects, missing parts, misassembly, temperature/humidity control, air pressure, fluid viscosity levels, etc. Based on the analytics performed on the real-time data, each station decides how to proceed  before reaching the next station in the assembly line. The analytics data is also fed to other stations for their data processing activities. For this use case, several Archetype 1 virtual clusters are created to communicate between stations. From these virtual clusters, a select set of endpoints are also independently clustered to form an Archetype 2 virtual cluster, called the central cluster. These endpoints belong to both the central and station clusters. The central cluster is used to commrunicate with the central system that monitors individual stations. By having its own cluster that is independent of the station clusters and yet still able to communicate with individual stations provides a complete control over all the stations without having to cluster every broker. For example, it can shutdown all the stations in case of emergency by simply broadcasting the shutdown message to the central cluster.
 
@@ -646,7 +646,7 @@ ERROR: Error occured while publishing data. Endpoint not found [endpointName=arc
 
 ### Archetype 3 Summary
 
-Archetype 3 is Archetype 1 with targeted endpoints. We can target endpoints using the default names or assigned names. The ability to target endpoints provides a basic mechanism for turning the virtual cluster into a distributed system.
+Archetype 3 is Archetype 1 with targeted endpoints. We can target endpoints using the default names or assigned names. The ability to target endpoints provides a basic mechanism for turning the virtual cluster into a distributed system in which the endpoints can communicate with each other.
 
 ---
 
@@ -816,7 +816,7 @@ tcp://localhost:32003 - test/topic1: Archetype 5 message 3
 
 ### Archetype 5 Summary
 
-Archetype 5 refers to a virtual cluster configured with an outgoing bridge which forwards the published messages by the application to another virtual cluster.
+Archetype 5 refers to a virtual cluster configured with an outgoing bridge which forwards the application published messages to another virtual cluster.
 
 ---
 
@@ -1013,7 +1013,7 @@ Archetype 6 provides HA over bridged brokers using the sticky cluster configurat
 
 ### Archetype 7
 
-Archetype 7 increases the Archetype 6 HA by including additional clusters. Instead of limiting to two (2) brokers in Archetype 6, Archetype 7 creates multiple clusters to increase the number of brokers.  
+Archetype 7 increases the level of availability and scalability of Archetype 6 by including additional clusters. Instead of limiting to two (2) brokers in Archetype 6, Archetype 7 creates multiple clusters to increase the number of brokers.  
 
 ```yaml
 clusters:
