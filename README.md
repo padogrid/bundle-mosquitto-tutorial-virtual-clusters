@@ -89,7 +89,7 @@ switch_cluster edge
 
 ### Archetype 1
 
-Archetype 1 refers to a baseline virtual cluster providing the effect of a *fan-out* architecture: **one publisher and many subscribers**. In Archetype 1, the receiver subscribes to all the brokers in the virtual cluster. The sender delivers each message using a single publisher that is connected to one of the brokers and the receiver receives the message from that broker. The publisher is selected by one of the following methods. The default method is `publisherType: STICKY`. The publisher "sticks" to one endpoint for all operations.
+Archetype 1 refers to a baseline virtual cluster providing the effect of a *fan-out* architecture: **one publisher and many subscribers**. In Archetype 1, the receiver subscribes to all the brokers in the virtual cluster. The sender delivers each message using a single publisher that is connected to one of the brokers. The receiver receives the message via the subscriber connected to that broker. The publisher is selected by one of the methods shown below. The default method is `publisherType: STICKY`. The publisher "sticks" to one endpoint for all operations.
 
 - By `publisherType`. Valid values are `STICKY`, `RANDOM`, `ROUND_ROBIN`, and `ALL`.
 - By endpoint name. Each endpoint is identifiable by a unqiue name.
@@ -274,7 +274,7 @@ clusters:
 
 ### Archetype 2
 
-Archetype 2 is inverse of Archetype 1. Instead of targeting individual brokers, it targets all brokers in the virutal cluster providing the effect of a *fan-in* architecture: **many publishers and one subscriber**. Since each receiver has one active subscriber, they receive non-duplicate messages from one of the brokers. As far as the application is concerned, there is no difference between Archetype 1 and Archetype 2. They both send and receive messages via their respective virtual cluster. Archetype 2 is useful in an environment where the reachability of IoT devices is not guaranteed due to poor wireless networks, device mobility and failures, firewalls, etc. Unlike Archetype 1, which expects a stable network for the publisher to reach all the IoT devices, Archetype 2 broadcasts to all the brokers allowing each IoT device to receive data regardless of the network issues.
+Archetype 2 is inverse of Archetype 1. Instead of targeting individual brokers, it targets all brokers in the virutal cluster providing the effect of a *fan-in* architecture: **many publishers and one subscriber**. Since each receiver has one active subscriber, they receive messages from only one broker. From the applicaton perspective, there is no difference between Archetype 1 and Archetype 2. They both send and receive messages via their respective virtual cluster with the same result. Archetype 2 is useful in an environment where the reachability of IoT devices is not guaranteed due to poor wireless networks, device mobility and failures, firewalls, and etc. Unlike Archetype 1, which relies on a stable network for the publisher to reach endpoints, Archetype 2 relies on broadcasted messages to reach endpoints regardless of network issues.
 
 ```yaml
 defaultCluster: edge
@@ -652,7 +652,7 @@ Archetype 3 is Archetype 1 with targeted endpoints. We can target endpoints usin
 
 ### Archetype 4
 
-Archetype 4 creates an incoming bridge.
+Archetype 4 creates an incoming bridge. See [Bridging Incomming Messages](https://github.com/padogrid/padogrid/wiki/Clustering-MQTT#example-1-bridging-incoming-messages) for details.
 
 ```yaml
 clusters:
@@ -731,7 +731,7 @@ Archetype 4 refers to a virtual cluster configured with the incoming bridge whic
 
 ### Archetype 5
 
-Archetype 5 creates an outgoing bridge.
+Archetype 5 creates an outgoing bridge. See [Bridging Outgoing Messages](https://github.com/padogrid/padogrid/wiki/Clustering-MQTT#example-2-bridging-outgoing-messages) for details.
 
 ```yaml
 clusters:
@@ -1190,7 +1190,7 @@ stop_workspace -all
 3. *Mosquitto Overview*, PadoGrid Manual, <https://github.com/padogrid/padogrid/wiki/Mosquitto-Overview>
 4. *Clustering MQTT*, PadoGrid Manual, <https://github.com/padogrid/padogrid/wiki/Clustering-MQTT>
 5. *Eclipse Mosquitto*, <https://mosquitto.org/>
-6. *Paho*, Eclpse Foundation, <https://www.eclipse.org/paho/>
+6. *Paho*, Eclipse Foundation, <https://www.eclipse.org/paho/>
 
 ---
 
