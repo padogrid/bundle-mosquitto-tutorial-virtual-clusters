@@ -6,5 +6,6 @@ clusters:
       - name: special-node
         endpoint: tcp://localhost:1885
         topicBase: test/special
-    connection:
-      serverURIs: [tcp://localhost:1883-1892]
+    connections:
+      - connection:
+          serverURIs: [tcp://localhost:1883-1892]

@@ -1,13 +1,15 @@
 defaultCluster: edge
 clusters:
   - name: edge
-    connection:
-      serverURIs: [tcp://localhost:1883-1892]
+    connections:
+      - connection:
+          serverURIs: [tcp://localhost:1883-1892]
     bridges:
       out:
         - cluster: enterprise
           topicFilters: [test/#]
           qos: 2
   - name: enterprise
-    connection:
-      serverURIs: [tcp://localhost:32001-32010]
+    connections:
+      - connection:
+          serverURIs: [tcp://localhost:32001-32010]

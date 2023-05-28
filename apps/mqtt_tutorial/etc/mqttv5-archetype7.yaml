@@ -4,13 +4,15 @@ clusters:
     fos: 3
     publisherType: ROUND_ROBIN
     subscriberCount: 0
-    connection:
-      serverURIs: [tcp://localhost:31001-31010]
+    connections:
+      - connection:
+          serverURIs: [tcp://localhost:31001-31010]
   - name: subscriber
-    connection:
-      serverURIs:
-        - tcp://localhost:31001
-        - tcp://localhost:31003
-        - tcp://localhost:31005
-        - tcp://localhost:31007
-        - tcp://localhost:31009
+    connections:
+      - connection:
+          serverURIs:
+            - tcp://localhost:31001
+            - tcp://localhost:31003
+            - tcp://localhost:31005
+            - tcp://localhost:31007
+            - tcp://localhost:31009

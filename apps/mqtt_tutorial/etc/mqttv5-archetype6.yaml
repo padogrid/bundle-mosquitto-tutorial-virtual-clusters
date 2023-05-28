@@ -2,6 +2,7 @@ defaultCluster: sticky
 clusters:
   - name: sticky
     fos: 2
-    connection:
-      serverURIs: [tcp://localhost:31001-31002]
+    connections:
+      - connection:
+          serverURIs: [tcp://localhost:31001-31002]
 

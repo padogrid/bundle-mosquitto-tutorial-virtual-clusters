@@ -98,8 +98,9 @@ Archetype 1 refers to a baseline virtual cluster providing the effect of a *fan-
 ```yaml
 clusters:
   - name: edge
-    connection:
-      serverURIs: [tcp://localhost:1883-1892]
+    connections:
+      - connection:
+          serverURIs: [tcp://localhost:1883-1892]
 ```
 
 ![Archetype 1](images/mqtt-archetype1.drawio.png)
@@ -215,8 +216,9 @@ Instead of using the `-cluster` option, you can use the `-config` option to crea
 defaultCluster: edge
 clusters:
   - name: edge
-    connection:
-      serverURIs: [tcp://localhost:1883-1892]
+    connections:
+      - connection:
+          serverURIs: [tcp://localhost:1883-1892]
 ```
 
 The following commands have the same effect as the `-cluster` option.
@@ -266,8 +268,9 @@ The following example creates a virtual cluster that dedicates the entire usable
 ```yaml
 clusters:
   - name: edge
-    connection:
-      serverURIs: [tcp://192.0.1.1-254]
+    connections:
+      - connection:
+          serverURIs: [tcp://192.0.1.1-254]
 ```  
 
 ---
@@ -283,8 +286,9 @@ clusters:
     fos: 3
     publisherType: ALL
     subscriberCount: 2
-    connection:
-      serverURIs: [tcp://localhost:1883-1892]
+    connections:
+      - connection:
+          serverURIs: [tcp://localhost:1883-1892]
 ```
 
 ![Archetype 2](images/mqtt-archetype2.drawio.png)
@@ -445,8 +449,9 @@ clusters:
       - name: special-node
         endpoint: tcp://localhost:1885
         topicBase: test/special
-    connection:
-      serverURIs: [tcp://localhost:1883-1892]
+    connections:
+      - connection:
+          serverURIs: [tcp://localhost:1883-1892]
 ```
 
 ![Archetype 3](images/mqtt-archetype3.drawio.png)
@@ -657,16 +662,18 @@ Archetype 4 creates an incoming bridge. See [Bridging Incomming Messages](https:
 ```yaml
 clusters:
   - name: edge
-    connection:
-      serverURIs: [tcp://localhost:1883-1892]
+    connections:
+      - connection:
+          serverURIs: [tcp://localhost:1883-1892]
     bridges:
       in:
         - cluster: enterprise
           topicFilters: [test/#]
           qos: -1
   - name: enterprise
-    connection:
-      serverURIs: [tcp://localhost:32001-32005]
+    connections:
+      - connection:
+          serverURIs: [tcp://localhost:32001-32005]
 ```
 
 ![Archetype 4](images/mqtt-archetype4.drawio.png)
@@ -736,16 +743,18 @@ Archetype 5 creates an outgoing bridge. See [Bridging Outgoing Messages](https:/
 ```yaml
 clusters:
   - name: edge
-    connection:
-      serverURIs: [tcp://localhost:1883-1892]
+    connections:
+      - connection:
+          serverURIs: [tcp://localhost:1883-1892]
     bridges:
       out:
         - cluster: enterprise
           topicFilters: [test/#]
           qos: 2
   - name: enterprise
-    connection:
-      serverURIs: [tcp://localhost:32001-32005]
+    connections:
+      - connection:
+          serverURIs: [tcp://localhost:32001-32005]
 ```
 
 ![Archetype 5](images/mqtt-archetype5.drawio.png)
@@ -828,8 +837,9 @@ Archetype 6 creates a sticky (proxy) virtual cluster that provides HA at the bro
 clusters:
   - name: sticky
     fos: 2
-    connection:
-      serverURIs: [tcp://localhost:31001-31002]
+    connections:
+      - connection:
+          serverURIs: [tcp://localhost:31001-31002]
 ```
 
 ![Archetype 6](images/mqtt-archetype6.drawio.png)
@@ -1021,16 +1031,18 @@ clusters:
     fos: 3
     publisherType: ROUND_ROBIN
     subscriberCount: 0
-    connection:
-      serverURIs: [tcp://localhost:31001-31010]
+    connections:
+      - connection:
+          serverURIs: [tcp://localhost:31001-31010]
   - name: subscriber
-    connection:
-      serverURIs:
-        - tcp://localhost:31001
-        - tcp://localhost:31003
-        - tcp://localhost:31005
-        - tcp://localhost:31007
-        - tcp://localhost:31009
+    connections:
+      - connection:
+          serverURIs:
+            - tcp://localhost:31001
+            - tcp://localhost:31003
+            - tcp://localhost:31005
+            - tcp://localhost:31007
+            - tcp://localhost:31009
 ```
 
 ![Archetype 7](images/mqtt-archetype7.drawio.png)
