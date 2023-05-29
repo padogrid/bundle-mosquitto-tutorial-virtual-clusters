@@ -34,7 +34,8 @@ apps
         ├── mqttv5-archetype3.yaml
         ├── mqttv5-archetype4.yaml
         ├── mqttv5-archetype5.yaml
-        └── mqttv5-archetype6.yaml
+        ├── mqttv5-archetype6.yaml
+        └── mqttv5-archetype7.yaml
 ```
 
 ## Table of Contents
@@ -73,6 +74,8 @@ add_member -cluster edge -count 7
 # Create enterprise cluster with 5 members
 make_cluster -product mosquitto -cluster enterprise -port 32001
 add_member -cluster enterprise -count 3
+
+# Start all clusters in the workspace
 start_workspace -quiet
 ```
 
@@ -208,7 +211,7 @@ tcp://localhost:1885 - test/topic1: hello from mosquitto_pub 3
 
 #### By Configuration
 
-Instead of using the `-cluster` option, you can use the `-config` option to create a virtual cluster. The configuration file for this example is provided in the `etc` directory. 
+Instead of using the `-cluster` option, you can use the `-config` option to create a virtual cluster. The configuration file for this example is provided in the `mqtt_tutorial` app's `etc` directory. 
 
 `etc/mqttv5-archetype1.yaml`:
 
@@ -228,14 +231,14 @@ The following commands have the same effect as the `-cluster` option.
 ```bash
 # Ctrl-C to exit the vc_subscribe command and execute the following:
 cd_app mqtt_tutorial
-vc_subscribe -config etc/mqttv5-archetype1-subscriber.yaml -t test/#
+vc_subscribe -config etc/mqttv5-archetype1.yaml -t test/#
 ```
 
 ![Terminal](images/terminal.png) Terminal 3
 
 ```bash
 cd_app mqtt_tutorial
-vc_publish -config etc/mqttv5-archetype1-publisher.yaml -t test/topic1 -m "hello from config file"
+vc_publish -config etc/mqttv5-archetype1.yaml -t test/topic1 -m "hello from config file"
 ```
 
 You should see both Terminal 1 and Terminal 2 receiving the same message.
@@ -342,7 +345,7 @@ Output:
 cd_app mqtt_tutorial
 vc_publish -config etc/mqttv5-archetype2.yaml  -t test/topic1 -m "Archetype 2 message 1"
 vc_publish -config etc/mqttv5-archetype2.yaml  -t test/topic1 -m "Archetype 2 message 2"
-vc_publish -config etc/mqttv5-archetype2.yaml  -t test/topic1 -m "Archetype 2 message 2"
+vc_publish -config etc/mqttv5-archetype2.yaml  -t test/topic1 -m "Archetype 2 message 3"
 ```
 
 Output:
@@ -482,6 +485,7 @@ Let's experiment this virtual cluster.
 
 ```bash
 # Ctrl-C to exit the running program and execute the following
+cd_app mqtt_tutorial
 vc_subscribe -config etc/mqttv5-archetype3.yaml -t test/#
 ```
 
@@ -499,6 +503,7 @@ tail -f ~/.padogrid/log/vc_subscribe.log
 First, run `vc_publish` without the target endpoint.
 
 ```bash
+cd_app mqtt_tutorial
 vc_publish -config etc/mqttv5-archetype3.yaml -t test/topic1 -m "Archetype 3 message 1"
 vc_publish -config etc/mqttv5-archetype3.yaml -t test/topic1 -m "Archetype 3 message 2"
 vc_publish -config etc/mqttv5-archetype3.yaml -t test/topic1 -m "Archetype 3 message 3"
@@ -597,7 +602,7 @@ Let's now use the default endpoint names to target the endpoints.
 ```bash
 vc_publish -name archetype3-1  -config etc/mqttv5-archetype3.yaml -t test/topic1 -m "Archetype 3 message 9"
 vc_publish -name archetype3-2  -config etc/mqttv5-archetype3.yaml -t test/topic1 -m "Archetype 3 message 10"
-vc_publish -name archetype3-4  -config etc/mqttv5-archetype3.yaml -t test/topic1 -m "Archetype 3 message 11
+vc_publish -name archetype3-4  -config etc/mqttv5-archetype3.yaml -t test/topic1 -m "Archetype 3 message 11"
 ```
 
 ![Terminal](images/terminal.png) Terminal 1
@@ -646,7 +651,7 @@ config: etc/mqttv5-archetype3.yaml
 topic: test/topic1
 name: archetype3-3
 message: Archetype 3 message 10
-ERROR: Error occured while publishing data. Endpoint not found [endpointName=archetype3-3] Command aborted.
+ERROR: Error occured while publishing data. Endpoint not found [endpointName=archetype3-3]. Command aborted.
 ```
 
 ### Archetype 3 Summary
@@ -686,6 +691,7 @@ From Terminal 1, start a server that is configured with the incoming bridge show
 
 ```bash
 # Ctrl-C to exit the running program and execute the following
+cd_app mqtt_tutorial
 vc_start -config etc/mqttv5-archetype4.yaml
 ```
 
@@ -1124,7 +1130,7 @@ From Terminal 3, send messages to each member.
 for i in $(seq 1 9); do
    mosquitto_pub -p 3100$i -t test/topic1 -m "hello to subscriber $i"
 done
-mosquitto_pub -p 31010 -t test/topic1 -m "hello to subscriber $i"
+mosquitto_pub -p 31010 -t test/topic1 -m "hello to subscriber 10"
 ```
 
 ![Terminal](images/terminal.png) Terminal 2
@@ -1149,7 +1155,7 @@ tcp://localhost:31005 - test/topic1: hello to subscriber 6
 tcp://localhost:31007 - test/topic1: hello to subscriber 7
 tcp://localhost:31007 - test/topic1: hello to subscriber 8
 tcp://localhost:31009 - test/topic1: hello to subscriber 9
-tcp://localhost:31009 - test/topic1: hello to subscriber 9
+tcp://localhost:31009 - test/topic1: hello to subscriber 10
 ```
 
 ![Terminal](images/terminal.png) Terminal 3
@@ -1157,6 +1163,7 @@ tcp://localhost:31009 - test/topic1: hello to subscriber 9
 From Terminal 3, use `vc_publish` to send messages to the `publisher` virtual cluster, which .
 
 ```bash
+cd_app mqtt_tutorial
 for i in $(seq 1 10); do
    vc_publish -name publisher-$i -cluster publisher -config etc/mqttv5-archetype7.yaml -t test/topic1 -m "publisher sends hello to subscriber $i"
 done
@@ -1192,7 +1199,7 @@ Archetype 7 allows any number of bridged brokers by pairing additional brokers a
 # Stop all apps with Ctrl-C
 
 # Stop the entire workspace (this stops all Mosquitto clusters running in the workspace)
-stop_workspace -all
+stop_workspace
 ```            
 
 ## References
