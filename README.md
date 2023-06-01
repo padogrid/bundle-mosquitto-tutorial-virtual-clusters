@@ -78,7 +78,7 @@ add_member -count 7
 # Create enterprise cluster with 5 members
 make_cluster -product mosquitto -cluster enterprise -port 32001
 switch_cluster enterprise
-add_member -count 3
+add_member -count 2
 
 # Start all clusters in the workspace
 start_workspace -quiet
