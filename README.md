@@ -67,6 +67,9 @@ apps
 This tutorial requires three (3) Mosquitto clusters. Let's create the first two (2) clusters now. We will create the third cluster later.
 
 ```bash
+# First, switch into the bundle workspace
+switch_workspace bundle-mosquitto-tutorial-virtual-clusters
+
 # Create edge cluster with 10 members
 make_cluster -product mosquitto -cluster edge
 add_member -cluster edge -count 7
