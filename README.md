@@ -72,11 +72,13 @@ switch_workspace bundle-mosquitto-tutorial-virtual-clusters
 
 # Create edge cluster with 10 members
 make_cluster -product mosquitto -cluster edge
-add_member -cluster edge -count 7
+switch_cluster edge
+add_member -count 7
 
 # Create enterprise cluster with 5 members
 make_cluster -product mosquitto -cluster enterprise -port 32001
-add_member -cluster enterprise -count 3
+switch_cluster enterprise
+add_member -count 3
 
 # Start all clusters in the workspace
 start_workspace -quiet
