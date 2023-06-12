@@ -285,7 +285,7 @@ clusters:
 
 ### Archetype 2
 
-Archetype 2 is inverse of Archetype 1. Instead of targeting individual brokers, it targets all brokers in the virutal cluster providing the effect of a *fan-in* architecture: **many publishers and one subscriber**. Since each receiver has one active subscriber, they receive messages from only one broker. From the applicaton perspective, there is no difference between Archetype 1 and Archetype 2. They both send and receive messages via their respective virtual cluster with the same result. Archetype 2 is useful in an environment where the reachability of IoT devices is not guaranteed due to poor wireless networks, device mobility and failures, firewalls, and etc. Unlike Archetype 1, which relies on a stable network for the publisher to reach endpoints, Archetype 2 relies on broadcasted messages to reach endpoints regardless of network issues.
+Archetype 2 is inverse of Archetype 1. Instead of targeting individual brokers, it targets all the brokers in the virutal cluster providing the effect of a *fan-in* architecture: **many publishers and one subscriber**. Since each receiver has one active subscriber, they receive messages from only one broker. From the applicaton perspective, there is no difference between Archetype 1 and Archetype 2. They both send and receive messages via their respective virtual cluster with the same result. Archetype 2 is useful in an environment where the reachability of IoT devices is not guaranteed due to poor wireless networks, device mobility and failures, firewalls, and etc. Unlike Archetype 1, which relies on a stable network for the publisher to reach endpoints, Archetype 2 relies on broadcasted messages to reach endpoints regardless of network issues.
 
 ```yaml
 defaultCluster: edge
@@ -1195,6 +1195,112 @@ tcp://localhost:31009 - test/topic1: publisher sends hello to subscriber 10
 ### Archetype 7 Summary
 
 Archetype 7 allows any number of bridged brokers by pairing additional brokers and creating publisher-only and subscriber-only virtual clusters. The publisher-only virtual cluster can scale out to `n-2` brokers and the subscriber-only cluster can scale out to `n` brokers.
+
+---
+
+### Architype 8
+
+Archetype 8 combines Archetype 1 (fan-in) and Archetype 2 (fan-out) to provide a *butterfly* architecture: **many publishers and many subscribers**. In Archetype 8, the `HaMqttClient` publishes and subscribes to all the brokers in the virutal cluster. This architecture is useful when edge devices are completely sandboxed and do not have access to MQTT brokers other than their `localhost` broker.
+
+```yaml
+clusters:
+  - name: curator
+    publisherType: ALL
+    connections:
+      - connection:
+          serverURIs: [tcp://localhost:1883-1892]
+```
+
+![Archetype 8](images/mqtt-archetype8.drawio.png)
+
+
+![Terminal](images/terminal.png) Terminal 1
+
+```bash
+# Ctrl-C to terminate the running program
+
+# Subscribe to a virtual cluster using the provided Archetype 8 configuration file
+cd_app mqtt_tutorial
+vc_subscribe -config etc/mqttv5-archetype8.yaml -t test/#
+```
+
+![Terminal](images/terminal.png) Terminal 2
+
+```bash
+# Ctrl-C to terminate the running program
+
+# Monitor the vc_subscriber log file
+tail -f ~/.padogrid/log/vc_subscribe.log
+```
+
+![Terminal](images/terminal.png) Terminal 3
+
+```bash
+# Ctrl-C to terminate the running program
+
+# Publish to the virtual cluster
+vc_publish -config etc/mqttv5-archetype8.yaml -t test/topic1 -m "Archetype 8 message ALL"
+```
+
+![Terminal](images/terminal.png) Terminal 1
+
+Terminal 1 should output the same message received frome each endpoint.
+
+Output:
+
+```console
+LOG_FILE: /Users/dpark/.padogrid/log/vc_subscribe.log
+cluster: edge (virtual)
+fos: 0
+qos: 0
+config: etc/mqttv5-archetype8.yaml
+topicFilter: test/#
+Waiting for messages...
+tcp://localhost:1887 - test/topic1: Archetype 8 message ALL
+tcp://localhost:1885 - test/topic1: Archetype 8 message ALL
+tcp://localhost:1886 - test/topic1: Archetype 8 message ALL
+tcp://localhost:1883 - test/topic1: Archetype 8 message ALL
+tcp://localhost:1890 - test/topic1: Archetype 8 message ALL
+tcp://localhost:1891 - test/topic1: Archetype 8 message ALL
+tcp://localhost:1884 - test/topic1: Archetype 8 message ALL
+tcp://localhost:1888 - test/topic1: Archetype 8 message ALL
+tcp://localhost:1889 - test/topic1: Archetype 8 message ALL
+tcp://localhost:1892 - test/topic1: Archetype 8 message ALL
+```
+
+![Terminal](images/terminal.png) Terminal 3
+
+Now, publish messages to each broker using `mosquitto_pub`.
+
+```bash
+for i in $(seq 1883 1892); do \
+   mosquitto_pub -p $i -t test/topic1 -m "Archetype 8 message $i"; \
+done
+```
+
+![Terminal](images/terminal.png) Terminal 1
+
+Terminal 1 should receive messages from indiviaul brokers as follows.
+
+Output:
+
+```console
+...
+tcp://localhost:1883 - test/topic1: Archetype 8 message 1883
+tcp://localhost:1884 - test/topic1: Archetype 8 message 1884
+tcp://localhost:1885 - test/topic1: Archetype 8 message 1885
+tcp://localhost:1886 - test/topic1: Archetype 8 message 1886
+tcp://localhost:1887 - test/topic1: Archetype 8 message 1887
+tcp://localhost:1888 - test/topic1: Archetype 8 message 1888
+tcp://localhost:1889 - test/topic1: Archetype 8 message 1889
+tcp://localhost:1890 - test/topic1: Archetype 8 message 1890
+tcp://localhost:1891 - test/topic1: Archetype 8 message 1891
+tcp://localhost:1892 - test/topic1: Archetype 8 message 1892
+```
+
+### Archetype 8 Summary
+
+Archetype 8 is a butterfly architecture for clustering sandboxed edge devices. Using a butterfly virtual cluster, the application can reach edge devices that do not have network visibility. Each edge device solely relies on the their local broker to communicate with the virtual cluster monitored by the *curator* which in turn provides application specific services such as data aggregation, command control, and edge device to edge device communications.
 
 ---
 
