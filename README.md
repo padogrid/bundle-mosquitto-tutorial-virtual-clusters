@@ -1132,10 +1132,9 @@ vc_subscribe -cluster subscriber -config etc/mqttv5-archetype7.yaml -t test/#
 From Terminal 3, send messages to each member.
 
 ```bash
-for i in $(seq 1 9); do
-   mosquitto_pub -p 3100$i -t test/topic1 -m "hello to subscriber $i"
+for i in $(seq 31001 31010); do
+   mosquitto_pub -p $i -t test/topic1 -m "hello to subscriber $i"
 done
-mosquitto_pub -p 31010 -t test/topic1 -m "hello to subscriber 10"
 ```
 
 ![Terminal](images/terminal.png) Terminal 2
@@ -1151,16 +1150,16 @@ qos: 0
 config: etc/mqttv5-archetype7.yaml
 topicFilter: test/#
 Waiting for messages...
-tcp://localhost:31001 - test/topic1: hello to subscriber 1
-tcp://localhost:31001 - test/topic1: hello to subscriber 2
-tcp://localhost:31003 - test/topic1: hello to subscriber 3
-tcp://localhost:31003 - test/topic1: hello to subscriber 4
-tcp://localhost:31005 - test/topic1: hello to subscriber 5
-tcp://localhost:31005 - test/topic1: hello to subscriber 6
-tcp://localhost:31007 - test/topic1: hello to subscriber 7
-tcp://localhost:31007 - test/topic1: hello to subscriber 8
-tcp://localhost:31009 - test/topic1: hello to subscriber 9
-tcp://localhost:31009 - test/topic1: hello to subscriber 10
+tcp://localhost:31001 - test/topic1: hello to subscriber 31001
+tcp://localhost:31001 - test/topic1: hello to subscriber 31002
+tcp://localhost:31003 - test/topic1: hello to subscriber 31003
+tcp://localhost:31003 - test/topic1: hello to subscriber 31004
+tcp://localhost:31005 - test/topic1: hello to subscriber 31005
+tcp://localhost:31005 - test/topic1: hello to subscriber 31006
+tcp://localhost:31007 - test/topic1: hello to subscriber 31007
+tcp://localhost:31007 - test/topic1: hello to subscriber 31008
+tcp://localhost:31009 - test/topic1: hello to subscriber 31009
+tcp://localhost:31009 - test/topic1: hello to subscriber 31010
 ```
 
 ![Terminal](images/terminal.png) Terminal 3
@@ -1273,8 +1272,8 @@ tcp://localhost:1892 - test/topic1: Archetype 8 message ALL
 Now, publish messages to each broker using `mosquitto_pub`.
 
 ```bash
-for i in $(seq 1883 1892); do \
-   mosquitto_pub -p $i -t test/topic1 -m "Archetype 8 message $i"; \
+for i in $(seq 1883 1892); do
+   mosquitto_pub -p $i -t test/topic1 -m "Archetype 8 message $i"
 done
 ```
 
