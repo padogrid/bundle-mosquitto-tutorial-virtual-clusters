@@ -638,7 +638,7 @@ tcp://localhost:1884 - test/topic1: Archetype 3 message 10
 tcp://localhost:1886 - test/topic1: Archetype 3 message 11
 ```
 
-Terminal 1 output shows the target endpoints as exepected.
+Terminal 1 output shows the target endpoints as expected.
 
 ![Terminal](images/terminal.png) Terminal 3
 
