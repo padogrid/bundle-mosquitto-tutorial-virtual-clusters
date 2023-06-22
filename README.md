@@ -317,7 +317,6 @@ vc_subscribe -config etc/mqttv5-archetype2.yaml -t test/#
 Output:
 
 ```console
-LOG_FILE: /Users/dpark/.padogrid/log/vc_subscribe.log
 cluster: edge (virtual)
 fos: 0
 qos: 0
@@ -360,7 +359,6 @@ Output:
 
 ```console
 ...
-LOG_FILE: /Users/dpark/.padogrid/log/vc_publish.log
 cluster: edge (virtual)
 fos: 0
 qos: 0
@@ -374,7 +372,6 @@ message: Archetype 2 message 3
 You should also see Terminal 1 ouputs as follows.
 
 ```console
-LOG_FILE: /Users/dpark/.padogrid/log/vc_subscribe.log
 cluster: edge (virtual)
 fos: 0
 qos: 0
@@ -522,7 +519,6 @@ vc_publish -config etc/mqttv5-archetype3.yaml -t test/topic1 -m "Archetype 3 mes
 Output:
 
 ```console
-LOG_FILE: /Users/dpark/.padogrid/log/vc_subscribe.log
 cluster: archetype3 (virtual)
 fos: 0
 qos: 0
@@ -555,7 +551,6 @@ vc_publish -config etc/mqttv5-archetype3.yaml -t test/special/topic1 -m "Archety
 Output:
 
 ```console
-LOG_FILE: /Users/dpark/.padogrid/log/vc_subscribe.log
 cluster: archetype3 (virtual)
 fos: 0
 qos: 0
@@ -618,7 +613,6 @@ vc_publish -name archetype3-4  -config etc/mqttv5-archetype3.yaml -t test/topic1
 Output:
 
 ```console
-LOG_FILE: /Users/dpark/.padogrid/log/vc_subscribe.log
 cluster: archetype3 (virtual)
 fos: 0
 qos: 0
@@ -651,7 +645,6 @@ vc_publish -name archetype3-3  -config etc/mqttv5-archetype3.yaml -t test/topic1
 Output:
 
 ```console
-LOG_FILE: /Users/dpark/.padogrid/log/vc_publish.log
 cluster: archetype3 (virtual)
 fos: 0
 qos: 0
@@ -730,7 +723,6 @@ Terminal 2 is subscribed to the `enterprise` virtual cluster but it also receive
 Output:
 
 ```console
-LOG_FILE: /Users/dpark/.padogrid/log/vc_subscribe.log
 PadoGrid Cluster: enterprise
 cluster: enterprise (virtual)
 endpoints: tcp://localhost:32001-32005
@@ -806,7 +798,6 @@ vc_publish -config etc/mqttv5-archetype5.yaml -t test/topic1 -m "Archetype 5 mes
 Output:
 
 ```console
-LOG_FILE: /Users/dpark/.padogrid/log/vc_subscribe.log
 PadoGrid Cluster: edge
 cluster: edge (virtual)
 endpoints: tcp://localhost:1883-1892
@@ -824,7 +815,6 @@ tcp://localhost:1884 - test/topic1: Archetype 5 message 3
 Output:
 
 ```console
-LOG_FILE: /Users/dpark/.padogrid/log/vc_subscribe.log
 PadoGrid Cluster: enterprise
 cluster: enterprise (virtual)
 endpoints: tcp://localhost:32001-32005
@@ -939,7 +929,6 @@ Output:
 
 ```console
 2023-05-21T17:07:16: mosquitto version 2.0.15 starting
-2023-05-21T17:07:16: Config loaded from /Users/dpark/Padogrid/workspaces/rwe-bundles/bundle-mosquitto-tutorial-virtual-clusters/clusters/bridged/etc/mosquitto.conf.
 2023-05-21T17:07:16: Opening ipv6 listen socket on port 31001.
 2023-05-21T17:07:16: Opening ipv4 listen socket on port 31001.
 2023-05-21T17:07:16: Opening ipv6 listen socket on port 37201.
@@ -975,7 +964,6 @@ vc_publish -name bridged-2 -t test/topic1 -m "hello to bridged 2"
 You should see Terminal 2 ouputs as follows.
 
 ```console
-LOG_FILE: /Users/dpark/.padogrid/log/vc_subscribe.log
 cluster: sticky (virtual)
 endpoints: tcp://localhost:31001-31002
 fos: 0
@@ -1095,8 +1083,8 @@ You should see each member connecting to their respective bridged broker.
 
 ```console
 ...
-==> /Users/dpark/Padogrid/workspaces/rwe-bundles/bundle-mosquitto-tutorial-virtual-clusters/clusters/bridged/log/bridged-padomac.local-09.log <==
-2023-05-22T17:50:05: Config loaded from /Users/dpark/Padogrid/workspaces/rwe-bundles/bundle-mosquitto-tutorial-virtual-clusters/clusters/bridged/etc/mosquitto.conf.
+==> ~/Padogrid/workspaces/rwe-bundles/bundle-mosquitto-tutorial-virtual-clusters/clusters/bridged/log/bridged-padomac.local-09.log <==
+2023-05-22T17:50:05: Config loaded from ~/Padogrid/workspaces/rwe-bundles/bundle-mosquitto-tutorial-virtual-clusters/clusters/bridged/etc/mosquitto.conf.
 2023-05-22T17:50:05: Opening ipv6 listen socket on port 31009.
 2023-05-22T17:50:05: Opening ipv4 listen socket on port 31009.
 2023-05-22T17:50:05: Opening ipv6 listen socket on port 37209.
@@ -1107,9 +1095,9 @@ You should see each member connecting to their respective bridged broker.
 2023-05-22T17:50:05: Client local.bridged-09 closed its connection.
 2023-05-22T17:50:12: Connecting bridge bridged-09 (localhost:31010)
 
-==> /Users/dpark/Padogrid/workspaces/rwe-bundles/bundle-mosquitto-tutorial-virtual-clusters/clusters/bridged/log/bridged-padomac.local-10.log <==
+==> ~/Padogrid/workspaces/rwe-bundles/bundle-mosquitto-tutorial-virtual-clusters/clusters/bridged/log/bridged-padomac.local-10.log <==
 2023-05-22T17:50:05: mosquitto version 2.0.15 starting
-2023-05-22T17:50:05: Config loaded from /Users/dpark/Padogrid/workspaces/rwe-bundles/bundle-mosquitto-tutorial-virtual-clusters/clusters/bridged/etc/mosquitto.conf.
+2023-05-22T17:50:05: Config loaded from ~/Padogrid/workspaces/rwe-bundles/bundle-mosquitto-tutorial-virtual-clusters/clusters/bridged/etc/mosquitto.conf.
 2023-05-22T17:50:05: Opening ipv6 listen socket on port 31010.
 2023-05-22T17:50:05: Opening ipv4 listen socket on port 31010.
 2023-05-22T17:50:05: Opening ipv6 listen socket on port 37210.
@@ -1145,7 +1133,6 @@ done
 Terminal 2 should output messages received from the odd numbered ports. The messages published on 31003 and 31004 are received by 31003 as shown below.
 
 ```console
-LOG_FILE: /Users/dpark/.padogrid/log/vc_subscribe.log
 PadoGrid Cluster: subscriber
 cluster: subscriber (virtual)
 fos: 0
@@ -1251,7 +1238,6 @@ Terminal 1 should output the same message received frome each endpoint.
 Output:
 
 ```console
-LOG_FILE: /Users/dpark/.padogrid/log/vc_subscribe.log
 cluster: edge (virtual)
 fos: 0
 qos: 0
