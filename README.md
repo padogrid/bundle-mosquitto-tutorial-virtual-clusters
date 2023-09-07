@@ -1025,7 +1025,7 @@ Archetype 6 provides HA over bridged brokers using the sticky cluster configurat
 
 ### Archetype 7
 
-Archetype 7 increases the level of availability and scalability of Archetype 6 by including additional clusters. Instead of limiting to two (2) brokers in Archetype 6, Archetype 7 creates multiple clusters to increase the number of brokers.  
+Archetype 7 increases the level of availability and scalability of Archetype 6 by including additional broker pairs. Instead of limiting to a single broker pair by Archetype 6, Archetype 7 creates multiple broker pairs to increase the number of brokers.
 
 ```yaml
 clusters:
