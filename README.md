@@ -1187,7 +1187,7 @@ Archetype 7 allows any number of bridged brokers by pairing additional brokers a
 
 ---
 
-### Architype 8
+### Archetype 8
 
 Archetype 8 combines Archetype 1 (fan-in) and Archetype 2 (fan-out) to provide a *butterfly* architecture: **many publishers and many subscribers**. In Archetype 8, the `HaMqttClient` publishes and subscribes to all the brokers in the virutal cluster. This architecture is useful when edge devices are completely sandboxed and do not have access to MQTT brokers other than their `localhost` broker.
 
