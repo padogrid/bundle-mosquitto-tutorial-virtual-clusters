@@ -22,6 +22,7 @@ This tutorial bundle walks through archetypes that represent specific MQTT virtu
 
 - PadoGrid 0.9.25+
 - Mosquitto 2.x
+- JDK 11+ (Required by Archetype 9 which uses the simulator bundle)
 
 ## Bundle Contents
 
@@ -62,6 +63,8 @@ apps
    1. [Archetype 7 Summary](#archetype-7-summary)
    1. [Archetype 8](#archetype-8)
    1. [Archetype 8 Summary](#archetype-8-summary)
+   1. [Archetype 9](#archetype-9)
+   1. [Archetype 9 Summary](#archetype-9-summary)
 3. [Teardown](#teardown)
 3. [References](#references)
 
@@ -1292,13 +1295,140 @@ Archetype 8 is a butterfly architecture for clustering sandboxed edge devices. U
 
 ---
 
+### Archetype 9
+
+Archetype 9 integrates various endpoints in virtual clusters by configuring plugins. There are three (3) types of [`HaMqttClient` plugins](https://github.com/padogrid/padogrid/blob/develop/padogrid-mqtt/README.md#hamqttclient-plugins): `IHaMqttPlugin`, `IHaMqttConnectorPublisher`, and `IHaMqttConnectorSubscriber`. `IHaMqttPlugin` is for embedding application logic in virtual clusters. `IHaMqttConnectorPublisher` and `IHaMqttConnectorSubscriber` are for creating connectors that can bridge targets other than MQTT brokers.
+
+```yaml
+plugins:
+  - name: questdb
+    description: Stream JSON messages to QuestDB
+    enabled: true
+    context: CLUSTER
+    className: padogrid.mqtt.connectors.QuestDbJsonConnector
+    properties:
+      - key: endpoint
+        value: localhost:9009
+    subscriptions:
+      - topicFilters: [edge/#]
+        qos: 1
+  - name: hazelcast
+    description: Stream JSON messages to Hazelcast
+    enabled: true
+    context: CLUSTER
+    className: padogrid.mqtt.connectors.HazelcastJsonConnector
+    properties:
+      - key: clusterName
+        value: dev
+      - key: endpoints
+        value: localhost:5701,localhost:5702
+      - key: dsType
+        value: MAP
+      - key: keyType
+        value: UUID
+    subscriptions:
+      - topicFilters: [edge/#]
+        qos: 1
+
+clusters:
+  - name: edge
+    pluginNames: [questdb, hazelcast]
+    connections:
+      - connection:
+          serverURIs: [tcp://localhost:1883-1892]
+```
+
+![Archetype 9](images/mqtt-archetype9.drawio.png)
+
+Let's install the [simulator bundle](https://github.com/padogrid/bundle-none-app-simulator) which includes QuestDB and Hazelcast JSON connectors.
+
+![Terminal](images/terminal.png) Terminal 1
+
+```bash
+# Ctrl-C to terminate the running program
+
+# Install simulator bundle
+install_bundle -quiet -download bundle-none-app-simulator
+```
+
+Once installed, build the simulator bundle as follows.
+
+```bash
+cd_app simulator/bin_sh
+./build_app
+```
+
+To condense our tutorial, we will use just the Hazelcast connector. If you want to try QuestDB, then you can follow the [simulator bundle](https://github.com/padogrid/bundle-none-app-simulator) instructions.
+
+Install and start Hazelcast cluster.
+
+```bash
+make_cluster -product hazelcast -cluster myhz
+start_cluster -cluster myhz
+```
+
+Subscribe to topic filter.
+
+```bash
+cd_app mqtt_tutorial
+vc_start -config etc/mqttv5-archetype9.yaml
+```
+
+![Terminal](images/terminal.png) Terminal 2
+
+Run the simulator. The simulator publishes JSON objects to topics that begin with 'edge/' on the default virtual cluster with the endpoints, `tcp://localhost:1883-1885`.
+
+```bash
+cd_app simulator/bin_sh
+./simulator -simulator-config ../etc/simulator-edge.yaml
+```
+
+You should see the simulator outputting JSON objects it is publishing to the edge virtual cluster. 
+
+```console
+...
+product=mqtt, topic=edge/heartbeat: {"heartbeat":-0.06314954291527804,"time":"2023-09-10T19:32:29.452-0400"}
+product=mqtt, topic=edge/heartbeat: {"heartbeat":-0.02339438208632624,"time":"2023-09-10T19:32:29.482-0400"}
+product=mqtt, topic=edge/heartbeat: {"heartbeat":-0.007024322121730872,"time":"2023-09-10T19:32:29.512-0400"}
+```
+
+![Terminal](images/terminal.png) Terminal 3
+
+Install the `perf_test` app to listen on Hazelcast maps.
+
+```bash
+switch_cluster myhz
+create_app -product hazelcast -app perf_test -name perf_test_hz
+cd_app perf_test_hz/bin_sh
+
+# By default, the Hazelcast connector converts topic names to map names by
+# replacing '/' with '_'. For example, 'edge/heartbeat' is converted to
+# 'edge_heartbeat'.
+./listen_map -type map edge_heartbeat
+```
+
+You should see the Hazelcast map listener outputting JSON objects received via the connector plugin started in Terminal 1.
+
+```console
+...
+Added: edge_heartbeat - key=cd17de27-7dde-42c4-b455-b670b9feed7c, value={"heartbeat":-0.06314954291527804,"time":"2023-09-10T19:32:29.452-0400"}
+Added: edge_heartbeat - key=5b2da9e8-ce7b-4be0-9df9-8068d935e09e, value={"heartbeat":-0.02339438208632624,"time":"2023-09-10T19:32:29.482-0400"}
+Added: edge_heartbeat - key=9cd48562-7687-461e-8066-be7cc9b431ee, value={"heartbeat":-0.007024322121730872,"time":"2023-09-10T19:32:29.512-0400"}
+```
+
+### Archetype 9 Summary
+
+Archetype 9 uses plugins to integrate various products and/or embed business logic in virtual clusters. In this section, we streamed MQTT data to Hazelcast by adding a simple JSON connector plugin. A single virtual cluster can be configured with multiple connectors to bridge multiple targets such as databses, data grids, application servers, and etc.
+
+---
+
 ## Teardown
 
 ```bash
 # Stop all apps with Ctrl-C
 
 # Stop the entire workspace (this stops all Mosquitto clusters running in the workspace)
-stop_workspace
+stop_workspace -all
 ```            
 
 ## References

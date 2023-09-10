@@ -1,0 +1,27 @@
+defaultCluster: edge
+
+plugins:
+  - name: hazelcast
+    description: Stream JSON messages to Hazelcast
+    enabled: true
+    context: CLUSTER
+    className: padogrid.mqtt.connectors.HazelcastJsonConnector
+    properties:
+      - key: clusterName
+        value: dev
+      - key: endpoints
+        value: localhost:5701,localhost:5702
+      - key: dsType
+        value: MAP
+      - key: keyType
+        value: UUID
+    subscriptions:
+      - topicFilters: [edge/#]
+        qos: 1
+
+clusters:
+  - name: edge
+    pluginNames: [hazelcast]
+    connections:
+      - connection:
+          serverURIs: [tcp://localhost:1883-1892]
