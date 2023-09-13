@@ -37,7 +37,8 @@ apps
         ├── mqttv5-archetype5.yaml
         ├── mqttv5-archetype6.yaml
         ├── mqttv5-archetype7.yaml
-        └── mqttv5-archetype8.yaml
+        ├── mqttv5-archetype8.yaml
+        └── mqttv5-archetype9.yaml
 ```
 
 ## Table of Contents
