@@ -1320,7 +1320,7 @@ plugins:
     className: padogrid.mqtt.connectors.HazelcastJsonConnector
     properties:
       - key: clusterName
-        value: edge
+        value: dev
       - key: endpoints
         value: localhost:5701,localhost:5702
       - key: dsType
