@@ -81,12 +81,12 @@ This tutorial requires three (3) Mosquitto clusters. Let's create the first two 
 switch_workspace bundle-mosquitto-tutorial-virtual-clusters
 
 # Create edge cluster with 10 members
-make_cluster -product mosquitto -cluster edge
+create_cluster -product mosquitto -cluster edge
 switch_cluster edge
 add_member -count 7
 
 # Create enterprise cluster with 5 members
-make_cluster -product mosquitto -cluster enterprise -port 32001
+create_cluster -product mosquitto -cluster enterprise -port 32001
 switch_cluster enterprise
 add_member -count 2
 
@@ -1367,7 +1367,7 @@ To condense our tutorial, we will use just the Hazelcast connector. If you want 
 Install and start Hazelcast cluster.
 
 ```bash
-make_cluster -product hazelcast -cluster myhz
+create_cluster -product hazelcast -cluster myhz
 start_cluster -cluster myhz
 ```
 
