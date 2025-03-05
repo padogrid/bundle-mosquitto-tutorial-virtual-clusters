@@ -164,7 +164,7 @@ qos: 0
 topicFilter: test/#
 Waiting for messages...
 tcp://localhost:1883 - test/topic1: hello, world 1
-tcp://localhost:1891 - test/topic1: hello, world 2
+tcp://localhost:1884 - test/topic1: hello, world 2
 tcp://localhost:1885 - test/topic1: hello, world 3
 ```
 
@@ -186,7 +186,7 @@ You may find the `vc_publish` command a bit slow. This is because it has to make
 
 ```bash
 vc_publish -endpoints tcp://localhost:1883 -t test/topic1 -m "hello to single endpoint 1"
-vc_publish -endpoints tcp://localhost:1891 -t test/topic1 -m "hello to single endpoint 2"
+vc_publish -endpoints tcp://localhost:1884 -t test/topic1 -m "hello to single endpoint 2"
 vc_publish -endpoints tcp://localhost:1885 -t test/topic1 -m "hello to single endpoint 3"
 ```
 
@@ -196,7 +196,7 @@ You can also run Mosquitto's `mosquitto_pub` to publish messages into the virtua
 
 ```bash
 mosquitto_pub -p 1883 -t test/topic1 -m "hello from mosquitto_pub 1"
-mosquitto_pub -p 1891 -t test/topic1 -m "hello from mosquitto_pub 2"
+mosquitto_pub -p 1884 -t test/topic1 -m "hello from mosquitto_pub 2"
 mosquitto_pub -p 1885 -t test/topic1 -m "hello from mosquitto_pub 3"
 ```
 
@@ -213,13 +213,13 @@ qos: 0
 topicFilter: test/#
 Waiting for messages...
 tcp://localhost:1883 - test/topic1: hello, world 1
-tcp://localhost:1891 - test/topic1: hello, world 2
+tcp://localhost:1884 - test/topic1: hello, world 2
 tcp://localhost:1885 - test/topic1: hello, world 3
 tcp://localhost:1883 - test/topic1: hello to single endpoint 1
-tcp://localhost:1891 - test/topic1: hello to single endpoint 2
+tcp://localhost:1884 - test/topic1: hello to single endpoint 2
 tcp://localhost:1885 - test/topic1: hello to single endpoint 3
 tcp://localhost:1883 - test/topic1: hello from mosquitto_pub 1
-tcp://localhost:1891 - test/topic1: hello from mosquitto_pub 2
+tcp://localhost:1884 - test/topic1: hello from mosquitto_pub 2
 tcp://localhost:1885 - test/topic1: hello from mosquitto_pub 3
 ```
 
